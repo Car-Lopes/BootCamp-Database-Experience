@@ -1,0 +1,115 @@
+
+
+Criei a tabela pagamento 
+
+	create table payments(
+		idPayment int auto_increment primary key ,
+        typePayment enum('Boleto', 'Cartao') not null,
+		LimitAvailable float
+);
+
+
+Criei tabela Cartao 
+
+create table creditCard(
+	idcreditCard int auto_increment primary key,
+	NumCreditCard char (15) not null,
+    DtCadastro date not null,
+    DtValid date not null,
+    idCardClient int,
+    constraint numCreditCard unique (NumCreditCard),
+    constraint chk_creditCard check (DtValid > DtCadastro),
+	constraint fk_credit_client foreign key (idCardClient) references clients(idClient)
+);
+
+
+Criei tabela entrega 
+
+create table delivery(
+idDelivery int auto_increment primary key,
+trackingCode varchar(20),
+DeliveryStatus enum ('Entregue', 'Em Rota', 'Devolvido') default 'Em rota'
+);
+
+
+-------------------------------------------------------------------------------------------------------
+Apos isso adicionei as contraints 
+
+Criei um campo 
+alter table payments
+   add idCard int;
+   
+alter table payments 
+  add constraint fk_payments_Card foreign key  (idCard) references  creditCard(idcreditCard);
+
+
+------------------------------------------------------
+alter table delivery
+	add column idDelOrder int;
+    
+ alter table delivery
+    add constraint fk_delivery_order foreign key (idDelOrder) references orders(idOrder);
+
+alter table delivery
+	add constraint unique_delivery unique(trackingCode);
+
+
+------------------------------------------------------
+alter table orders
+  add column idOrdersPayment int;
+
+alter table orders
+  add constraint fk_orders_payment foreign key (idOrdersPayment) references payments(idPayment);
+
+
+
+-------------------------------------------------------
+alter table clients
+	add column CNPJ char (16);
+
+
+-------------------------------------------------------------------------------------
+inserindo dados 
+
+insert into payments(typePayment,LimitAvailable)     
+				values('Cartao', 5000),
+                      ('Boleto', 10000),
+                      ('Cartao', 7000),
+                      ('Boleto', 3000);
+
+insert into creditCard(NumCreditCard,DtCadastro,DtValid,idCardClient) 
+				values(147852369874125,'2022-08-09','2030-01-21',1);
+                      (147852369874547,'2022-08-09','2025-02-27',2),
+                      (741852369474547,'2022-08-08','2027-05-17',3),
+                      (147852369874458,'2022-08-09','2025-01-17',2);
+
+
+insert into delivery(trackingCode,DeliveryStatus)
+         values('14522dfrr84','Entregue'),
+               ('18522dfrr74',Default),
+               ('18922dfrr74','Em Rota');
+
+--------------------------------------------------------------------------
+-- quantos pedidos foram feitos por cada cliente
+select concat(Fname, ' ', Lname) as Name_Complet, count(*) Quantity_Orders from orders
+   inner join clients on idClient = idOrderClient              
+         group by idClient
+
+-- Algum vendedor tambem é fornecedor 
+select * from Supplier su 
+  inner join seller s on s.CNPJ = su.CNPJ 
+
+
+--  Relação de produtos, fornecedores e estoques
+select * from product p
+  inner join productStorage ps on ps.idProductStorage = p.idProduct 
+  inner join productSupplier psp on psp.idPsProduct = p.idProduct 
+  inner join Supplier s on psp.idPsSupplier = s.idSupplier
+
+
+
+ -- Relação de nomes dos fornecedores e nomes dos produtos  
+ select s.SocialName AS Name_Supllier, p.Pname as Name_Product 
+         from product p
+         inner join productSupplier ps on ps.idPsProduct = p.idProduct 
+		 inner join Supplier s on ps.idPsSupplier = s.idSupplier
