@@ -1,0 +1,261 @@
+Projeto Completo 
+
+Create database ecommerce;
+use ecommerce;
+
+-- Criando table cliente
+
+    
+create table clients(
+	idClient int auto_increment primary key,
+    Fname varchar(15),
+    Minit char(3),
+	Lname varchar(20),
+    CPF char(11) not null,
+    Address varchar(45),
+    constraint unique_cpf_client unique (CPF)
+);
+
+alter table clients
+	add column CNPJ char(16) not null; 
+    
+    alter table clients
+     constraint unique_CNPJ_client unique (CNPJ);
+   
+   
+-- Criando table produto
+create table product(
+	idProduct int auto_increment primary key,
+    Pname varchar(45) not null,
+    Classification bool default false,
+	Category enum('Eletronico','Vestimenta','Brinquedos','Alimentos','Moveis') not null,
+    Avaliação float default 0,
+    Size varchar(10),
+    DocTotal float
+);
+
+create table payments(
+		idPayment int auto_increment primary key ,
+        typePayment enum('Boleto', 'Cartao') not null,
+		LimitAvailable float
+);
+
+alter table payments
+   add idCard int;
+   
+alter table payments 
+  add constraint fk_payments_Card foreign key  (idCard) references  creditCard(idcreditCard);
+
+create table creditCard(
+	idcreditCard int auto_increment primary key,
+	NumCreditCard char (15) not null,
+    DtCadastro date not null,
+    DtValid date not null,
+    idCardClient int,
+    constraint numCreditCard unique (NumCreditCard),
+    constraint chk_creditCard check (DtValid > DtCadastro),
+	constraint fk_credit_client foreign key (idCardClient) references clients(idClient)
+);
+
+
+create table delivery(
+idDelivery int auto_increment primary key,
+trackingCode varchar(20),
+DeliveryStatus enum ('Entregue', 'Em Rota', 'Devolvido') default 'Em rota'
+);
+
+alter table delivery
+	add column idDelOrder int;
+    
+ alter table delivery
+    add constraint fk_delivery_order foreign key (idDelOrder) references orders(idOrder);
+   
+ alter table delivery
+	add constraint unique_delivery unique(trackingCode);
+
+
+create table orders(
+	idOrder int auto_increment primary key,
+    idOrderClient int not null,
+    OrderStatus ENUM('Processando', 'Cancelado', 'Enviado', 'Entregue') default 'Processando',
+    OrderDescription varchar(255),
+    SendValue float default 10,
+    PaymentCash boolean default false,
+	constraint fk_order_client foreign key (idOrderClient) references clients(idClient)
+);
+
+alter table orders
+  add column idOrdersPayment int;
+alter table orders
+  add column  idOrdercreditCard int;
+
+alter table orders
+  add constraint fk_orders_payment foreign key (idOrdersPayment) references payments(idPayment);
+
+create table productStorage(
+	idProductStorage int auto_increment primary key,
+    storageLocation varchar(45) not null,
+    Quantity int not null default 0
+);
+
+create table supplier(
+	idSupplier int auto_increment primary key,
+    SocialName varchar(255) not null,
+    CNPJ char(15) not null,
+    Contact char(11) not null,
+	constraint unique_supplierCNPJ unique (CNPJ)
+);
+
+create table seller(
+	idSeller int auto_increment primary key,
+    CNPJ char(15) not null,
+    CPF char(9) not null,
+    RazaoSocial varchar(255) not null,
+    SocialName varchar(255) not null,
+    LocalSeller varchar(255), 
+    Contact char(11) not null,
+    constraint fk_seller_CNPJ unique (CNPJ),
+    constraint fk_seller_CPF unique (CPF),
+	constraint fk_seller_RazaoSocial unique (RazaoSocial)
+ ); 
+
+create table productSeller(
+	idPseller int,
+    idProduct int,
+    Quantity int default 1,
+    primary key (idPseller,idProduct),
+    constraint fk_product_seller foreign key (idPseller) references seller(idSeller),
+    constraint fk_product_product foreign key (idProduct) references product(idProduct)
+ );
+
+alter table productSeller
+	add constraint fk_product_product foreign key (idProduct) references product(idProduct);
+
+create table productOrder(
+	idPOproduct int,
+    idPOorder int,
+	poQuantity int default 1,
+    poStatus ENUM('Disponivel', 'Sem Estoque') default 'Disponivel',
+    primary key (idPOproduct,idPOorder),
+    constraint fk_productOrder_product foreign key (idPOproduct) references product(idProduct),
+    constraint fk_productorder_order foreign key (idPOorder) references orders(idOrder)
+ );
+
+ alter table productOrder
+	add constraint fk_productOrder_product foreign key (idPOproduct) references product(idProduct);
+ alter table productOrder
+	add constraint fk_productorder_order foreign key (idPOorder) references orders(idOrder);
+
+create table storageLocation(
+	idLproduct int,
+    idLstorage int,
+    location varchar(255) not null,
+    primary key (idLproduct,idLstorage),
+    constraint fk_storagelocation_product foreign key (idLproduct) references product(idProduct),
+    constraint fk_storagelocation_storage foreign key (idLstorage) references productStorage(idProductStorage)
+ );
+
+alter table storageLocation
+	add constraint fk_storagelocation_product foreign key (idLproduct) references product(idProduct);
+
+create table productSupplier(
+	 idPsSupplier int,
+     idPsProduct int,
+     quantity int not null,
+     primary key (idPsSupplier,idPsProduct),
+     constraint fk_productSupplier_supplier foreign key (idPsSupplier) references supplier(idSupplier),
+	 constraint fk_productSupplier_product foreign key (idPsProduct) references product(idProduct)
+ );
+
+alter table productSupplier
+	add constraint fk_productSupplier_product foreign key (idPsProduct) references product(idProduct);
+
+------------------------------------------------------------------
+
+Inserindo dados 
+
+insert into clients (Fname, Minit, Lname, CPF, Address)
+		values('Carlos','C','Anrade','12345678989','Rua Patagonia 31, FullPQM - SP'),
+			  ('Leticia','M','Moura','98987654321','Rua Patagonia 30, FullPQM - SP'),
+              ('Bernardo','M','Andrade','45698712323','Rua Patagonia 31, FullPQM - SP'),
+              ('Fatima','F','Hora','14523698752','Rua Marciano 225, Vila - SP'),
+              ('Caio','M','Hora','14785236985','Rua Marciano 227, Vila M - SP'),
+              ('Graziele','H','Silva','74125898745','Rua Marciano 225, Vila - SP'),
+              ('Caaio','A','moura','148914923','Rua Patagonia 35, FullPQM - SP','1458796523852569');
+              ('Carlos','M','silva',' ','Rua Patagonia 35, FullPQM - SP','');
+
+insert into product (Pname, Classification, Category, Avaliação, Size, DocTotal)
+		values('Fone Bluethoof',false,'Eletronico','5',Null, '300.00'),
+			  ('Carregoador',false,'Eletronico','5',Null, '600.00'),
+              ('Carrinho',true,'Brinquedos','5',Null, '150.00'),
+              ('Colchão',false,'Moveis','3','2x1,20x80', '1500.00'),
+              ('Ração para cat',false,'Alimentos','4',Null, '25.00'),
+              ('Boneco H.Aranha',true,'Brinquedos','5','1x80x15','150.00'); 
+
+insert into orders (idOrderClient, OrderStatus, OrderDescription, SendValue, PaymentCash)
+		values('1',null,'Compra via APP',Null,'1'),
+		      ('2',null,'Compra via APP','50','0'),
+                      ('3','Processando',Null,Null,'1'),
+                      ('4',null,'Compra Site','150','1'),
+                      ('5',default,'Compra Site','150','1');
+
+insert into productorder(idPOproduct, idPOorder, poQuantity,poStatus)
+			values(1,5,2,null),
+			      (2,5,1,default),
+                              (3,6,0,default),
+                              (4,7,2,'Sem Estoque');
+                 
+insert into productstorage(storageLocation,Quantity)
+					values('RJ', '1000'),
+					      ('RJ', '500'),
+                                              ('SP', '300'),
+                                              ('SP', '10'),
+                                              ('CE', '60');
+
+insert into storageLocation (idLproduct, idLstorage, location) 
+		    values ('1','2','RJ'),
+                           ('2','5','RJ');
+                           
+insert into supplier (SocialName, CNPJ, Contact) 
+	 values('Tech Eletronics', '123456787951225', '21985474');
+	       ('Let Fashion', '258963147214589', '1152369874'),	
+               ('Car Tranp', '741852963753159', '1185214569');
+                      
+                      
+                      
+insert into productSupplier(idPsSupplier, idPsProduct, quantity)   
+		values(1,1,500),
+                       (1,2,400),
+                       (2,4,633),
+                       (3,3,5),
+                       (2,5,10);
+
+insert into seller (CNPJ, CPF, RazaoSocial, SocialName, LocalSeller, Contact)
+	    values(123456787951225, 587412369,'Tech Eketronics','Tech Eketronics', 'Rj', 2199853658),
+                  (123456789951254, 145236987,'Le Fashion','Le Fashion', 'SP', 2158236547),
+                  (123654741963214, 420547896,'Leh Fashion','Le Fashion', 'Rj', 21998536458),
+                  (123456789951289, 547987145,'Car Trans','Car Trans', 'SP', 1199853659);
+
+
+insert into productSeller(idPseller, idProduct, Quantity)   
+		values(5,5,80),
+                      (7,6,10);
+                      
+
+
+insert into payments(typePayment,LimitAvailable)     
+		values('Cartao', 5000),
+                      ('Boleto', 10000),
+                      ('Cartao', 7000),
+                      ('Boleto', 3000);
+
+insert into creditCard(NumCreditCard,DtCadastro,DtValid,idCardClient) 
+		values(147852369874125,'2022-08-09','2030-01-21',1);
+                      (147852369874547,'2022-08-09','2025-02-27',2),
+                      (741852369474547,'2022-08-08','2027-05-17',3),
+                      (147852369874458,'2022-08-09','2025-01-17',2);
+
+insert into delivery(trackingCode,DeliveryStatus)
+         values('14522dfrr84','Entregue'),
+               ('18522dfrr74',Default),
+               ('18922dfrr74','Em Rota');
