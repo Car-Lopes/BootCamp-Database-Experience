@@ -1,0 +1,202 @@
+create database oficina;
+use oficina;
+
+alter table Clients
+   add constraint fk_client_Phone unique (Phone)
+
+create table Clients(
+	idClient int auto_increment primary key not null,
+    CPF_CNPJ char(14) not null,
+    Fname varchar(20) not null,
+    Lname varchar(20) not null,
+    Address varchar(45),
+	Number_Address int,
+    Complement varchar(15),
+    Phone int not null,
+    constraint client_CPF_CNPJ unique (CPF_CNPJ)
+);
+
+create table Vehicle(
+	idVehicle int auto_increment primary key not null,
+    Model varchar(15),
+    Brand varchar(15),
+    Year_of_manufacture char(4),
+    Board varchar(7) not null,
+    idVClient int not null,
+    constraint Vehicle_board unique (Board),
+    constraint FK_Vehicle_Client foreign key (idVClient) references Clients(idClient) 
+);
+
+create table Mechanic(
+	idMechanic int not null auto_increment primary key,
+    Name_Mechanic varchar(45),
+	Registration int not null,
+    Office varchar(25),
+	Specialty varchar(25),
+    idTMechanic int,
+    constraint Mechanic_registration unique (Registration)
+);
+
+alter table Mechanic 
+	add constraint Fk_Mechanic_TypeService foreign key (idTMechanic) references type_service(idTypeService); 
+
+create table Mechanic_evaluates(
+	idMechanic_Vehicle int not null,
+    idMechanic_Mechanic int not null,
+    Diagnosis varchar(60),
+    constraint Fk_idMechanic_Vehicle foreign key (idMechanic_Vehicle) references Vehicle(idVehicle),
+	constraint Fk_idMechanic_Mechanic foreign key (idMechanic_Mechanic) references Mechanic(idMechanic)
+);
+
+
+create table Service(
+	idService int not null primary key auto_increment ,
+    descriptionService varchar(255) not null,
+    idTService int,
+    idPecaServic int,
+    idMObra int
+);
+
+alter table Service
+	add constraint Fk_Service_TypeService foreign key (idTService) references type_service (idTypeService); 
+ 
+alter table Service
+	Drop constraint Fk_Service_Parts foreign key  (idPecaServic) references Parts(idParts); 
+   
+alter table Service
+    drop column  idPecaServic  
+    
+alter table Service
+	add constraint Fk_Service_MObra foreign key  ( idMObra) references Hand_of_Constructions(IdHand);     
+
+create table type_service(
+	idTypeService int auto_increment primary key not null,
+    descriptionTypeService varchar(45)
+);
+
+create table Execute_run(
+	idExecService int not null,
+    idExecMechanic int not null
+);
+
+
+create table Ordem_service(
+	idOrdem_service int auto_increment not null primary key,
+    Dt_issue date,
+    valueServi float,
+    Dt_CompletionForecast date,
+    StatusService ENUM('Concluido','Fechado','Cancelado','Confirmado','Aberto') default 'Aberto',
+    idSOrderServ int,
+    idOrdServiceClient int,
+    constraint fk_OrdServiceClient foreign key  (idOrdServiceClient) references Clients(idClient)
+    
+);
+
+create table Hand_of_Constructions(
+	IdHand int primary key auto_increment,
+    descriptionHand varchar(100),
+    ValueHand float
+
+);
+
+create table Parts(
+	idParts int auto_increment primary key,
+     descriptionParts varchar(60),
+     quantity int,
+     valueParts float
+
+);
+
+create table Inventory(
+	idInventory int auto_increment primary key,
+    Place varchar(70),
+    QuantityInvetory int,
+    IdInventoryParts int,
+    constraint fk_InventoryParts foreign key (IdInventoryParts) references Parts(idParts)
+
+);
+alter table Inventory
+  add constraint chk_Inventory_q check (QuantityInvetory >= 0);
+  
+ create table ServicPasrts(
+	idSPParts int,
+    idSPService int,
+    constraint fk_idSPParts foreign key (idSPParts) references Parts(idParts),
+    constraint fk_idSPService foreign key (idSPService) references Service(idService)
+ );
+
+-- Persistindo dados 
+
+insert into Clients(CPF_CNPJ, Fname ,Lname, Address,Number_Address, Complement, Phone)
+       values (12345678909876,'Carlos','Moura','Rua Televisiva', 56, 'B', 923451129),
+              (09876678909876,'Bernardo','Moura','Rua Televisiva', 58, 'B', 923451130),
+              (00045678909876,'Leticia','Andrade','Rua Televisiva', 57, 'C', 989451129),
+              (12345456789879,'Fatima','Andrade','Rua Berimba', 49, 'Casa A', 923459029),
+              (12345678954321,'Caio','Vidal','Rua Marconex', 20, '3 andar', 983451187);
+
+select * from Clients
+
+insert into Vehicle(Model, Brand, Year_of_manufacture, Board, idVClient)
+         Values('HB20', 'Hynday', 2022, 'AAS4B23', 1),
+               ('Palio', 'Fiat', 2022, 'AAS4B56', 3),
+               ('Ferrari', 'Ferrari', 2022, 'BBS4B23', 2),
+               ('F1200', 'BMW', 2022, 'AAG5B23', 5),
+               ('F1250', 'BMW', 2022, 'AAS7Y23', 4);
+   
+
+select * from Vehicle   
+   
+insert into type_service (descriptionTypeService)
+         values ('Troca de Peças'),
+                ('Reparo Motor '),
+                ('Motor travado'),
+                ('Cambio Trincado');
+                
+select * from   type_service      
+
+
+insert into Mechanic(Name_Mechanic, Registration, Office, Specialty, idTMechanic)
+       values ('Fabio', '435', 'Mecanico Senior', 'Cambio', 3),
+              ('Alan', '123', 'Mecanico Tecnico', 'Reparo', 2),
+              ('Julio', '321', 'Mecanico Junior', 'Troca de peças',1);
+        
+select * from Mechanic
+
+insert into Hand_of_Constructions(descriptionHand,ValueHand)
+      values ('Limpeza e Troca', 500.00),
+             ('Troca Pçs', 300.00),
+             ('Troca motor', 900.00),
+             ('Troca de Oleo', 100.00);
+
+select * from Hand_of_Constructions
+
+insert into Parts(descriptionParts, quantity, valueParts)
+      values('Molas', 4, 600.00),
+            ('Couxim', 2, 250.99),
+            ('Rodas', 4, 2500.89),
+            ('Cambio', 1, 4000);
+            
+select * from Parts
+
+insert into Inventory(Place,QuantityInvetory, IdInventoryParts)
+       values('Rua f -Gondula A', 6, 1);
+             ('Rua C - Gondula R', 67, 2),
+             ('Rua F- Patio', 26, 4 ),
+             ('Rua A - Beco 1, Pat 3',25,3);
+             
+select * from Inventory  
+
+insert into Service (descriptionService,idTService,idMObra)  
+         values('Foi realizado Troca de peças e Oleo', 1, 4),
+               ('Realizado Reparos no motor', 2, 1);
+               
+ update Service set descriptionService =  'Sera realizado Troca de peças e Oleo ' where   idService = 1        
+ update Service set descriptionService =  'Sera Realizado Reparos no motor ' where   idService = 2   
+ 
+ select * from Service
+               
+insert into  Ordem_service(Dt_issue, valueServi, Dt_CompletionForecast, StatusService, idSOrderServ, idOrdServiceClient)              
+       values('2022-09-09', 700, '2022-09-11', 'Confirmado', 1,3),
+             ('2022-09-09', 900, '2022-09-25', Default, 1,2);
+             
+       select * from Ordem_service
