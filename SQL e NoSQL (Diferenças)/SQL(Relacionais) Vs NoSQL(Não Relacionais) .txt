@@ -1,0 +1,34 @@
+Sobre o uso de BD na atualidade
+
+
+Gama enorme de tecnologia e entender qual utilizar diante do constexto de nosso problema não simplesmente usar mais sim entender e sabe o motivo de usar naquele problema ou contexto tendo em visto que sim tem um custo para se manter e custo de manutenção dos bancos que se faz muito necessario. 
+
+O que é SQL e NoSQL
+
+Relacional(SQL) - é um tipo de banco que armazena relacionamento entre si, para modelos transacionais. Schema de dados rigido.
+
+Não relacional(NoSQL) - São bancos alternativo com capacidade alternativa serve para armezena estrutura de dados não ridiga aonde aonde se tem relacionais como armazenamento de videos, documentos Etc.- Seria banco de complemento - permite sem ter schema dados rigido podendo armazenar dados não estruturados e de estruturas totalmente diferentes. Com escalabilidade horizontal. 
+
+
+Os bancos NoSQL não foi criado para substituir os SQL, foi criado para substituir o que os relacionais não atende resolver problemas que os relacionais não consegue resolver ou não foram feitos para isso. Surgiu com uma alternativa para situação que quantidade exorbitantes dados precisavam ser armazenados onde a estruturação em tabelas se torna dificil. 
+
+Nos NoSQL as consultas é de forma simples ao inves dos SQL eles tem umas consultas mais complexas. 
+Para as consultas deve ser pensada de como vai ser performado esse dado atraves de index não ser amazenados de qualquer forma. Tem que ser pensado de como trazer essas informação de como irei acessar as informação os dados armazenados. 
+
+Quais os beneficios de usar um 
+Flexibilidade: os bancos de dados NoSQL geralmente fornecem esquemas flexíveis que permitem um desenvolvimento mais rápido e iterativo. O modelo de dados flexível torna os bancos de dados NoSQL ideais para dados semiestruturados e não estruturados.
+
+Escalabilidade: os bancos de dados NoSQL geralmente são projetados para serem escalados horizontalmente usando clusters distribuídos de hardware, em vez de escalá-los verticalmente adicionando servidores caros e robustos. Alguns provedores de nuvem lidam com essas operações nos bastidores como um serviço totalmente gerenciado.
+
+Alta performance: o banco de dados NoSQL é otimizado para modelos de dados específicos e padrões de acesso que permitem maior performance do que quando se tenta realizar uma funcionalidade semelhante com bancos de dados relacionais.
+
+Altamente funcional: os bancos de dados NoSQL fornecem APIs e tipos de dados altamente funcionais criados especificamente para cada um de seus respectivos modelos de dados.
+
+
+Relação dos Engenheiro - Esta mais ligado a preparação da informação deixa disponivel esses dados, esta mais ligado a manipulação dos dados. 
+
+Relação dos Cientista - Este utiliza esses dados disponibilizado para tirar insids ou proveita das informações para tomada de partida e estudo para o seu negocio. 
+
+
+
+

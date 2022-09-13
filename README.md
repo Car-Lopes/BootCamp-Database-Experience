@@ -6,3 +6,5 @@ Repositório criado para conteúdo e Desafios do BootCamp Database
 ## Projeto - Modelagem - Ordem de Serviço para Oficina - Versao V4 
 
 ## Projeto - Desafio Entrega Modelagem refinado e Script - E-commerce
+
+## Diferenças Entre Bancos Relacionais(SQL) e os Não Relacionais(NoSQL) 
