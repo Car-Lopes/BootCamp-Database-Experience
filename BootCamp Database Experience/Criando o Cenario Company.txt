@@ -1,0 +1,208 @@
+Criando BD para uma Companya
+
+create schema if not exists company; 
+use company;
+create table company.employee(
+	Fname varchar(15) NOT NULL,
+	Minit char,
+	Lname varchar(15) NOT NULL,
+	Ssn char(10) NOT NULL,
+	Bdate date,
+	Address varchar(30),
+	Sex char,
+	Salary decimal(10,2),
+	Super_ssn char(9),
+	Dno int NOT NULL,
+	PRIMARY KEY (Ssn)
+);
+
+create table departament(
+	Dname varchar(15) NOT NULL Unique ,
+    Dnumber int NOT NULL,
+    Mgr_ssn char(9),
+    Mgr_start_date date,
+    primary key (Dnumber),
+    foreign key (Mgr_ssn) references employee(Ssn)
+);
+
+create table dept_locations(
+	Dnumber int NOT NULL,
+	Dlocation varchar(15) NOT NULL,
+	primary key (Dnumber,Dlocation),
+    foreign key (Dnumber) references departament(Dnumber)
+);
+
+create table project(
+	Pname varchar(15) NOT NULL,
+	Pnumber int NOT NULL,
+	Plocation varchar(15),
+	Dnum int NOT NULL,
+	primary key (Pnumber),
+	unique (Pname),
+	foreign key (Dnum) references departament(Dnumber)
+);
+
+create table works_on(
+	Essn char(9) NOT NULL,
+    Pno int NOT NULL,
+    Hours decimal(3,1) NOT NULL,
+    primary key (Essn, Pno),
+    foreign key (Essn) references employee(Ssn),
+    foreign key (Pno) references project(Pnumber)
+);
+
+create table dependent(
+	Essn char(9) NOT NULL,
+    Dependent_name varchar(15) NOT NULL,
+    Sex char,
+    Bdate date,
+    Relationship varchar(8),
+    primary key (Essn, Dependent_name),
+    foreign key (Essn) references employee(Ssn)
+);
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+Criando novo banco com constraints (Esse foi um outro exemplo de como ficaria para dar nome as constraints)
+create schema if not exists company_constraints; 
+use company_constraints;
+
+create table employee(
+	Fname varchar(15) NOT NULL,
+	Minit char,
+	Lname varchar(15) NOT NULL,
+	Ssn char(10) NOT NULL,
+	Bdate date,
+	Address varchar(30),
+	Sex char,
+	Salary decimal(10,2),
+	Super_ssn char(9),
+	Dno int NOT NULL,
+    constraint chk_salary_employee check (Salary > 2000.0),
+    constraint pk_employee primary key (Ssn)
+);
+
+create table departament(
+	Dname varchar(15) NOT NULL,
+    Dnumber int NOT NULL,
+    Mgr_ssn char(9),
+    Mgr_start_date date,
+    Dept_create_date date,
+    constraint chk_dept check (Dept_create_date < Mgr_start_date),
+    constraint pk_name_dept primary key (Dnumber),
+    constraint unique_name_dept unique(Dname),
+    constraint fk_name_dept foreign key (Mgr_ssn) references employee(Ssn)
+);
+
+create table dept_locations(
+	Dnumber int NOT NULL,
+	Dlocation varchar(15) NOT NULL,
+    constraint pk_dept_locations primary key (Dnumber,Dlocation),
+    constraint fk_dept_locations foreign key (Dnumber) references departament(Dnumber)
+);
+
+create table project(
+	Pname varchar(15) NOT NULL,
+	Pnumber int NOT NULL,
+	Plocation varchar(15),
+	Dnum int NOT NULL,
+	constraint pk_project primary key (Pnumber),
+	constraint unique_project unique (Pname),
+	constraint fk_project foreign key (Dnum) references departament(Dnumber)
+);
+
+create table works_on(
+	Essn char(9) NOT NULL,
+    Pno int NOT NULL,
+    Hours decimal(3,1) NOT NULL,
+    constraint pk_works_on primary key (Essn, Pno),
+    constraint fk_works_on foreign key (Essn) references employee(Ssn),
+    constraint fk2_works_on foreign key (Pno) references project(Pnumber)
+);
+---------
+create table dependent(
+	Essn char(9) NOT NULL,
+    Dependent_name varchar(15) NOT NULL,
+    Sex char,
+    Bdate date,
+    Relationship varchar(8),
+    Age int NOT NULL,
+    constraint chk_dependent check (Age < 22),
+    constraint pk_dependent primary key (Essn, Dependent_name),
+    constraint fk_dependent foreign key (Essn) references employee(Ssn)
+); --Tabela foi dropada e creada novamente
+----------
+create table dependent(
+	Essn char(9) NOT NULL,
+    Dependent_name varchar(15) NOT NULL,
+    Sex char,
+    Bdate date,
+    Relationship varchar(8),
+    constraint pk_dependent primary key (Essn, Dependent_name),
+    constraint fk_dependent foreign key (Essn) references employee(Ssn)
+);
+
+
+-- No select para saber as informções das constraints que foram criadas no MYSQL
+select * from information_schema.table_constraints where constraint_schema = 'company_constraints'
+
+CONSTRAINT_CATALOG	CONSTRAINT_SCHEMA	CONSTRAINT_NAME		TABLE_SCHEMA		TABLE_NAME	CONSTRAINT_TYPE		ENFORCED
+def			company_constraints	PRIMARY			company_constraints	departament	PRIMARY KEY		YES
+def			company_constraints	unique_name_dept	company_constraints	departament	UNIQUE			YES
+def			company_constraints	fk_name_dept		company_constraints	departament	FOREIGN KEY		YES
+def			company_constraints	chk_dept		company_constraints	departament	CHECK			YES
+def			company_constraints	PRIMARY			company_constraints	dependent	PRIMARY KEY		YES
+def			company_constraints	fk_dependent		company_constraints	dependent	FOREIGN KEY		YES
+def			company_constraints	chk_dependent		company_constraints	dependent	CHECK			YES
+def			company_constraints	PRIMARY			company_constraints	dept_locations	PRIMARY KEY		YES
+def			company_constraints	fk_dept_locations	company_constraints	dept_locations	FOREIGN KEY		YES
+def			company_constraints	PRIMARY			company_constraints	employee	PRIMARY KEY		YES
+def			company_constraints	chk_salary_employee	company_constraints	employee	CHECK			YES
+def			company_constraints	PRIMARY			company_constraints	project		PRIMARY KEY		YES
+def			company_constraints	unique_project		company_constraints	project		UNIQUE			YES
+def			company_constraints	fk_project		company_constraints	project		FOREIGN KEY		YES
+def			company_constraints	PRIMARY			company_constraints	works_on	PRIMARY KEY		YES
+def			company_constraints	fk2_works_on		company_constraints	works_on	FOREIGN KEY		YES
+def			company_constraints	fk_works_on		company_constraints	works_on	FOREIGN KEY		YES
+
+
+
+INSERINDO DADOS 
+
+insert into  employee values ('Carlos','C','Maestr','998556999','1965-01-09','731-Fondren-TX','M','60000','123456789','2'),
+			     ('Leticia','C','Andrade','222598780','1970-12-09','731-Fondren-TX','F','6000','998556223','5'),
+                             ('Bernardo','C','Andrade','584725639','1990-09-24','731-Fondren-BR','M','80000','222598780','4'),
+                             ('Fatima','F','Moura','528963147','1980-05-21','731-Fondren-BR','F','5000','123456789','3')
+
+
+
+insert into dependent values ('998556223','Bernardo','M','1999-09-21','Filho'),     
+			     ('528963147','Caio','M','2022-09-21','Filho'),
+                             ('222598780','Larissa','F','1980-08-21','Filha')
+
+
+
+insert into departament value ('Tecnition','3','584725639','1988-05-22','1986-08-22') ,                           
+                              ('Administration','1','528963147','1995-05-22','1986-01-01') , 
+                              ('Resarch','2','222598780','1988-05-22','1986-08-22') 
+
+
+
+insert into dept_locations values (1, 'Houston'), (2, 'Stafford'), (2, 'Bellaire') 
+
+
+
+insert into project values ('ProductX','2','Bellaire',3),  
+                            ('ProductY','1','Houston',2),
+                            ('ProductZ','3','Stafford',1)  
+
+
+insert into works_on values ('998556223','2','32.5'),  
+                            ('222598780','1','40.0'),    
+                            ('528963147','3','40.0') 
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
